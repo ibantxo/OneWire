@@ -329,13 +329,17 @@ void OneWire::target_search(uint8_t family_code)
 }
 
 //
-// Perform a search. If this function returns a '1' then it has
+// Perform a search (NORMAL SEARCH -default- or CONDITIONAL SEARCH). 
+// If this function returns a '1' then it has
 // enumerated the next device and you may retrieve the ROM from the
 // OneWire::address variable. If there are no devices, no further
 // devices, or something horrible happens in the middle of the
 // enumeration then a 0 is returned.  If a new device is found then
 // its address is copied to newAddr.  Use OneWire::reset_search() to
 // start over.
+//
+// search_mode=1 <--> NORMAL SEARCH
+// search_mode=0 <--> CONDITIONAL SEARCH
 //
 // --- Replaced by the one from the Dallas Semiconductor web site ---
 //--------------------------------------------------------------------------
@@ -344,7 +348,7 @@ void OneWire::target_search(uint8_t family_code)
 // Return TRUE  : device found, ROM number in ROM_NO buffer
 //        FALSE : device not found, end of search
 //
-uint8_t OneWire::search(uint8_t *newAddr)
+uint8_t OneWire::search(uint8_t *newAddr, bool search_mode /* = 1 */)
 {
    uint8_t id_bit_number;
    uint8_t last_zero, rom_byte_number, search_result;
@@ -373,7 +377,11 @@ uint8_t OneWire::search(uint8_t *newAddr)
       }
 
       // issue the search command
-      write(0xF0);
+      if (search_mode==1){
+         write(0xF0);   //NORMAL SEARCH
+      } else {
+      	 write(0xEC);   //CONDITIONAL SEARCH
+      }
 
       // loop to do the search
       do
